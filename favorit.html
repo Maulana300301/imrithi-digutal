@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmark - Imrithi Digital</title>
+    <link rel="stylesheet" href="assets/css/bootstrap@5.2.0.min.css">
+    
+    <style>
+        /* --- [PENTING] LOAD FONT OFFLINE --- */
+        @font-face {
+            font-family: 'Amiri';
+            src: url('assets/fonts/Amiri-Regular.ttf');
+            font-weight: normal; font-style: normal;
+        }
+        @font-face {
+            font-family: 'Amiri';
+            src: url('assets/fonts/Amiri-Bold.ttf');
+            font-weight: 700; font-style: normal;
+        }
+
+        /* --- WARNA SINKRON DENGAN HOME --- */
+        :root {
+            --primary: #0f3d2e;        /* Hijau NU Gelap (SAMA DENGAN HOME) */
+            --gold: #d4af37;
+            --gold-light: rgba(212, 175, 55, 0.2);
+            --bg-light: #f8f9fa;
+            --text-arab: #000;
+            --text-latin: #4F5B55;
+        }
+
+        body { 
+            background-color: var(--bg-light); 
+            font-family: 'Segoe UI', sans-serif;
+            padding-bottom: 50px;
+        }
+
+        /* 1. APPBAR (SINKRON DENGAN DAFTAR ISI) */
+        .app-navbar {
+            background-color: var(--primary);
+            border-bottom: 2px solid var(--gold) !important;
+            padding: 10px 0;
+            box-shadow: 0 4px 15px rgba(15, 61, 46, 0.3);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .page-title {
+            font-family: 'Segoe UI', sans-serif; 
+            font-size: 1.1rem; font-weight: 700; color: white;
+        }
+
+        /* 2. CARD PREMIUM */
+        .nadhom-card {
+            border: none;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--gold);
+            transition: all 0.3s ease;
+        }
+        
+        .card-body { padding: 1.5rem; }
+
+        .card-header-custom {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px;
+        }
+        .badge-nomor {
+            background-color: var(--gold-light);
+            color: #856404;
+            font-weight: 700; font-size: 0.8rem;
+            padding: 4px 12px; border-radius: 8px;
+        }
+
+        .action-btn {
+            border: none; background: #f1f1f1; padding: 8px;
+            color: #666; border-radius: 50%; transition: all 0.2s;
+            margin-left: 8px;
+        }
+        .btn-delete:hover { background-color: #fee2e2; color: #dc3545; }
+        .btn-open:hover { background-color: #dcfce7; color: var(--primary); }
+
+        /* --- FONT ARAB --- */
+        .teks-arab {
+            font-family: 'Amiri', serif !important; 
+            font-size: 26px; 
+            line-height: 2.2 !important; 
+            text-align: right; /* Khas pembacaan Arab */
+            color: var(--text-arab);
+            margin: 15px 0;
+            font-weight: 400;
+        }
+
+        .terjemah-container {
+            background-color: #f9fbf9;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            border-right: 3px solid #eee;
+        }
+        .terjemah-text {
+            font-size: 0.95rem;
+            color: var(--text-latin);
+            margin: 0;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* Empty State */
+        .empty-state { text-align: center; margin-top: 100px; padding: 0 30px; }
+        .empty-icon { font-size: 5rem; margin-bottom: 20px; opacity: 0.3; }
+
+        /* DARK MODE SUPPORT */
+        body.dark-mode { background-color: #121212; }
+        body.dark-mode .nadhom-card { background-color: #1e1e1e; border-left-color: var(--gold); }
+        body.dark-mode .teks-arab { color: #eee; }
+        body.dark-mode .terjemah-container { background-color: #252525; border-right-color: #333; }
+        body.dark-mode .terjemah-text { color: #bbb; }
+        body.dark-mode .badge-nomor { background-color: #2a2510; color: var(--gold); }
+        body.dark-mode .action-btn { background: #333; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <nav class="app-navbar">
+        <div class="container-fluid d-flex align-items-center py-1">
+            <a href="index.html" class="text-white me-2 p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </a>
+            <span class="page-title">Bookmark Favorit</span>
+        </div>
+    </nav>
+
+    <div class="container mt-4 pb-5" id="bookmark-container">
+        </div>
+
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/data_nadhom.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sinkronkan Tema
+            if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+            
+            // Sinkronkan Ukuran Font Arab
+            let fontSize = localStorage.getItem('ukuranFont') || 26; 
+            let style = document.createElement('style');
+            style.innerHTML = `.teks-arab { font-size: ${fontSize}px !important; }`;
+            document.head.appendChild(style);
+
+            renderBookmarks();
+        });
+
+        function getBookmarks() {
+            const data = localStorage.getItem('imrithi_favorit');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function renderBookmarks() {
+            const container = document.getElementById('bookmark-container');
+            const bookmarks = getBookmarks();
+
+            if (bookmarks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📖</div>
+                        <h5 class="fw-bold">Belum Ada Bookmark</h5>
+                        <p class="text-muted">Tandai bait nadhom favoritmu saat membaca untuk memunculkannya di sini.</p>
+                        <a href="daftar_isi.html" class="btn btn-success px-4 mt-3" style="background-color: var(--primary); border:none;">Mulai Membaca</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            // Tampilkan yang terbaru di atas
+            const sortedBookmarks = [...bookmarks].reverse(); 
+
+            sortedBookmarks.forEach(id => {
+                const bait = dataNadhom.find(item => item.id === id);
+                if(bait) {
+                    html += `
+                    <div class="nadhom-card" id="card-${id}">
+                        <div class="card-body">
+                            <div class="card-header-custom">
+                                <span class="badge-nomor">Bait #${bait.id}</span>
+                                <div>
+                                    <button class="action-btn btn-open" onclick="goToBait(${bait.id})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    </button>
+                                    <button class="action-btn btn-delete" onclick="removeBookmark(${bait.id})">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="teks-arab" dir="rtl">${bait.arab}</p>
+                            <div class="terjemah-container">
+                                <p class="terjemah-text">${bait.terjemah}</p>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        function removeBookmark(id) {
+            if(confirm('Hapus bait ini dari bookmark?')) {
+                let list = getBookmarks();
+                const index = list.indexOf(id);
+                if (index > -1) {
+                    list.splice(index, 1);
+                    localStorage.setItem('imrithi_favorit', JSON.stringify(list));
+                    
+                    const card = document.getElementById(`card-${id}`);
+                    if(card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        setTimeout(() => renderBookmarks(), 300);
+                    }
+                }
+            }
+        }
+
+        function goToBait(id) {
+            // Mencari range bab secara otomatis (bait ini milik bab mana)
+            window.location.href = `baca.html?id=${id}`;
+        }
+    </script>
+</body>
+</html>
